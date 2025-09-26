@@ -2,7 +2,6 @@
 
 import networkx as nx
 import matplotlib.pyplot as plt
-# A linha abaixo é a correção principal
 from biblioteca_acoes import BIBLIOTECA_DE_ACOES, Acao 
 
 class Origami:
@@ -25,7 +24,6 @@ class Origami:
         instrucoes.append(f"Instruções para o Origami: {self.nome}")
         instrucoes.append("="*40)
         for i, id_acao in enumerate(self.caminho_de_acoes):
-            # Esta linha agora encontra o dicionário BIBLIOTECA_DE_ACOES sem problemas
             acao = BIBLIOTECA_DE_ACOES[id_acao] 
             instrucoes.append(f"Passo {i}: {acao.nome}")
             instrucoes.append(f"   -> {acao.descricao}")
@@ -128,7 +126,6 @@ class Origami:
         Verifica se a palavra de 'outro_origami' é uma subpalavra (substring) da palavra deste origami.
         Em LFA: dado w = self e u = outro, verifica se w = x u y para algumas palavras x, y.
         """
-        # Esta lógica é idêntica ao método is_subgrafo,
 
         palavra_maior_str = " ".join(self.caminho_de_acoes)
         palavra_menor_str = " ".join(outro_origami.caminho_de_acoes)
