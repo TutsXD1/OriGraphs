@@ -1,0 +1,41 @@
+# Arquivo .gitignore para o projeto Python/Streamlit OriGraphs
+
+# 1. Cache e arquivos compilados do Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# 2. Ambientes Virtuais
+# Ignorar diretórios comuns de ambientes virtuais
+venv/
+.venv/
+env/
+.env/
+ENV/
+
+# 3. Arquivos de configuração específicos do Streamlit
+.streamlit/
+
+# 4. Arquivos de configuração de Editores e IDEs
+.vscode/
+.idea/
+*.sublime-*
+
+# 5. Arquivos de configuração e segredos locais
+.env
+*.env
+
+# 6. Arquivos de Sistema Operacional
+.DS_Store
+Thumbs.db
+
+# 7. Artefatos de build e distribuição (boa prática incluir)
+build/
+dist/
+*.egg-info/
+
+# 8. Arquivos gerados por testes (boa prática incluir)
+.pytest_cache/
+.coverage
+htmlcov/
