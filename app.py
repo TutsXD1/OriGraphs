@@ -5,9 +5,9 @@ from classes_origami import Origami            # Importa a classe principal
 from biblioteca_acoes import BIBLIOTECA_DE_ACOES, Acao # Importa a biblioteca e a classe Acao
 
 # --- CONFIGURAÇÃO DA PÁGINA E TÍTULO ---
-st.set_page_config(layout="wide", page_title="Estúdio de Origami Digital")
+st.set_page_config(layout="wide", page_title="OriGraphs")
 
-st.title("Estúdio de Origami Digital")
+st.title("Origraphs - Desenvolvimento de Origamis com Grafos")
 st.markdown("Crie, analise e visualize os caminhos de ação para construir origamis.")
 
 # --- FUNÇÕES AUXILIARES ---
@@ -73,7 +73,7 @@ if modo == "Visualizar Origamis":
         st.warning("Nenhum origami foi criado ainda.")
     else:
         nomes_origamis = list(st.session_state.origamis_salvos.keys())
-        nome_selecionado = st.sidebar.selectbox("Escolha um origami para visualizar:", nomes_origamis)
+        nome_selecionado = st.selectbox("Escolha um origami para visualizar:", nomes_origamis)
         
         origami_selecionado = st.session_state.origamis_salvos[nome_selecionado]
         st.subheader(f"Analisando: {origami_selecionado.nome}")
@@ -107,9 +107,44 @@ elif modo == "Criar Novo Origami":
         nome_acao_selecionada = st.selectbox("Escolha a próxima ação:", list(opcoes_acoes.keys()))
         id_acao_selecionada = opcoes_acoes[nome_acao_selecionada]
 
-        if st.button("Adicionar Passo", use_container_width=True, type="primary"):
-            st.session_state.caminho_em_criacao.append(id_acao_selecionada)
+        btn_add, btn_rmv = st.columns(2)
         
+        if btn_add.button("Adicionar Passo", use_container_width=True, type="primary"):
+            st.session_state.caminho_em_criacao.append(id_acao_selecionada)
+
+        if btn_rmv.button("Remover Último Passo", use_container_width=True, type="secondary"):
+            if len(st.session_state.caminho_em_criacao) > 1:
+                st.session_state.caminho_em_criacao.pop()
+            else:
+                st.warning("Não é possível remover o passo inicial.")
+        
+        st.markdown("---")  
+        
+        st.markdown("#### Incorporar Modelo")
+        if len(st.session_state.origamis_salvos) > 0:
+            nome_origami_para_incorporar = st.selectbox(
+                "Use um origami salvo como parte do novo:",
+                list(st.session_state.origamis_salvos.keys())
+            )
+            if st.button("Incorporar Passos", use_container_width=True):
+                origami_a_incorporar = st.session_state.origamis_salvos[nome_origami_para_incorporar]
+                passos_originais = origami_a_incorporar.caminho_de_acoes
+
+                inicio_slice = 1
+                fim_slice = len(passos_originais)
+                if passos_originais[-1] == 'ORIGAMI_FINALIZADO':
+                    fim_slice -= 1
+
+
+                # Pega os passos do outro origami, ignorando o passo 'INICIO' [1:]
+                passos_para_adicionar = origami_a_incorporar.caminho_de_acoes[inicio_slice:fim_slice]
+                st.session_state.caminho_em_criacao.extend(passos_para_adicionar)
+                st.success(f"Passos de '{nome_origami_para_incorporar}' incorporados!")
+        else:
+            st.info("Nenhum origami salvo para incorporar.")
+
+        st.markdown("---")
+
         if st.button("Salvar Origami", use_container_width=True):
             if nome_novo_origami and len(st.session_state.caminho_em_criacao) > 1:
                 novo_origami = Origami(nome_novo_origami, id_acao_inicial=st.session_state.caminho_em_criacao[0])
