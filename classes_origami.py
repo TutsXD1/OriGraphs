@@ -119,16 +119,6 @@ class Origami:
         
         return True
 
-    def obter_grau_vertice(self, id_acao):
-        g = self._gerar_grafo(com_passos=False)
-        if id_acao not in g.nodes():
-            return None, None
-        
-        grau_entrada = g.in_degree(id_acao)
-        grau_saida = g.out_degree(id_acao)
-
-        return grau_entrada, grau_saida
-
     def obter_grafo_colorido(self):
     
         if len(self.caminho_de_acoes) < 2:
