@@ -72,6 +72,20 @@ class Origami:
         
         ax.set_title(f"Grafo de Ações para: {self.nome}", size=20)
         return fig
+    
+    def obter_grau_vertice(self, nome_da_acao):
+        """
+        Calcula o grau de entrada e de saída para um vértice (ação) específico.
+        """
+        g = self._gerar_grafo(com_passos=False)
+        if nome_da_acao not in g.nodes():
+            return None, None # Retorna None se a ação não existir no grafo
+        
+        grau_entrada = g.in_degree(nome_da_acao)
+        grau_saida = g.out_degree(nome_da_acao)
+        
+        return grau_entrada, grau_saida
+
    
    # --- Métodos de Teoria dos Grafos ---
 
@@ -92,6 +106,63 @@ class Origami:
         G_induzido = G.subgraph(H.nodes()) #Cria um G_induzido com base em H
 
         return set(G_induzido.edges()) == set(H.edges()) #Compara se o conjunto de arestas do subgrafo induzido é igual ao de H
+
+    def is_subgrafo_gerador(self, outro_origami):
+        """
+        Verifica se 'outro_origami' (H) é um subgrafo gerador deste origami (G).
+        Condições: V(H) == V(G) e E(H) é um subconjunto de E(G).
+        """
+        G = self._gerar_grafo(com_passos=False)
+        H = outro_origami._gerar_grafo(com_passos=False)
+
+        if set(G.nodes()) != set(H.nodes()):
+            return False
+        
+        if not set(H.edges()).issubset(set(G.edges())):
+            return False
+            
+        return True
+    
+    def obter_grafo_colorido(self):
+        """
+        Aplica um algoritmo de coloração de vértices ao grafo e retorna
+        a figura colorida e o número cromático.
+        """
+        if len(self.caminho_de_acoes) < 2:
+            return None, None
+
+        # Usamos um grafo não-direcionado para a coloração, pois a adjacência é o que importa
+        g_nao_direcionado = self._gerar_grafo(com_passos=False).to_undirected()
+
+        # Aplica o algoritmo de coloração
+        coloring = nx.greedy_color(g_nao_direcionado)
+        numero_cromatico = max(coloring.values()) + 1
+        
+        # Gera a lista de cores para os nós na ordem correta
+        node_colors = [coloring[node] for node in g_nao_direcionado.nodes()]
+
+        # Desenha o grafo original (direcionado) usando as cores calculadas
+        g_direcionado = self._gerar_grafo(com_passos=True)
+        fig, ax = plt.subplots(figsize=(18, 14))
+        pos = nx.spring_layout(g_direcionado, seed=42, k=2.5, iterations=50)
+
+        nx.draw(g_direcionado, pos, ax=ax, with_labels=False, 
+                node_color=node_colors, # Usa a lista de cores
+                cmap=plt.cm.viridis, # Mapa de cores para um visual agradável
+                node_size=3000,
+                edge_color="gray", width=2.0, arrowstyle="-|>",
+                arrowsize=25, connectionstyle='arc3,rad=0.15')
+        
+        nx.draw_networkx_labels(g_direcionado, pos, ax=ax, font_size=10, font_weight='bold')
+        labels_arestas = nx.get_edge_attributes(g_direcionado, 'passo')
+        nx.draw_networkx_edge_labels(g_direcionado, pos, ax=ax, edge_labels=labels_arestas, font_color='red',
+                                     font_size=11, font_weight='bold',
+                                     bbox=dict(facecolor='white', alpha=0.6, edgecolor='none', boxstyle='round,pad=0.2'),
+                                     label_pos=0.3)
+        
+        ax.set_title(f"Grafo Colorido para: {self.nome} (Número Cromático: {numero_cromatico})", size=20)
+        
+        return fig, numero_cromatico
 
     # --- Métodos de LFA ---
 
